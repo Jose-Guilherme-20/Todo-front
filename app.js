@@ -1,13 +1,14 @@
 "use strict";
-
-let banco = [{ tarefa: "estudar até ficar perfeito", status: "" }];
+const setBanco = (banco) =>
+  localStorage.setItem("todoList", JSON.stringify(banco));
+const getBanco = () => JSON.parse(localStorage.getItem("todoList")) ?? [];
 
 const criarItem = (tarefa, status, indice) => {
   const item = document.createElement("label");
   item.classList.add("todo__item");
-  item.innerHTML = `<input type="checkbox" ${status}>
+  item.innerHTML = `<input type="checkbox" ${status}  data-indice=${indice}>
                     <div>${tarefa}</div>
-                    <input type="button" value="x" data-indice="${indice}"> `;
+                    <input type="button" value="x" data-indice=${indice}> `;
   document.getElementById("todoList").appendChild(item);
 };
 const limparTarefa = () => {
@@ -18,6 +19,7 @@ const limparTarefa = () => {
 };
 const atualizarTela = () => {
   limparTarefa();
+  const banco = getBanco();
   banco.forEach((item, index) => {
     criarItem(item.tarefa, item.status, index);
   });
@@ -26,13 +28,24 @@ const inserirItem = (evento) => {
   const tecla = evento.key;
   const texto = evento.target.value;
   if (tecla === "Enter") {
+    const banco = getBanco();
     banco.push({ tarefa: texto, status: "" });
+    setBanco(banco);
     atualizarTela();
     evento.target.value = " ";
   }
 };
 const removeItem = (index) => {
+  const banco = getBanco();
   banco.splice(index, 1);
+  setBanco(banco);
+  atualizarTela();
+};
+
+const atualizarItem = (index) => {
+  const banco = getBanco();
+  banco[index].status = banco[index].status === "" ? "checked" : "";
+  setBanco(banco);
   atualizarTela();
 };
 const clickItem = (evento) => {
@@ -41,6 +54,8 @@ const clickItem = (evento) => {
 
   if (elemento.type === "button") {
     removeItem(index);
+  } else if (elemento.type === "checkbox") {
+    atualizarItem(index);
   }
 };
 
